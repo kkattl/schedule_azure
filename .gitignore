@@ -1,0 +1,42 @@
+# Terraform-specific ignores
+.terraform/ 
+*.tfstate
+*.tfstate.* 
+*.tfvars 
+override.tf 
+override.tf.json 
+*_override.tf 
+*_override.tf.json 
+.terraform.tfstate.lock.info 
+crash.log 
+override.tfvars 
+*.backup 
+
+# Ignore CLI configuration files
+.terraformrc 
+terraform.rc 
+
+# Sensitive variable files (якщо використовуються)
+*.tfvars.json 
+
+# If користуєтеся Terragrunt
+.terragrunt-cache/ 
+
+# IDE та редактори
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# macOS
+.DS_Store
+
+# Linux редактори
+*~
+
+# Логи
+*.log
+
+# Інші тимчасові файли
+*.tmp
+*.out
