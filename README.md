@@ -1,1 +1,1 @@
-Rename terraform.tfvars.example on terraform.tfvars
+Rename `terraform.tfvars.example` on `terraform.tfvars`
