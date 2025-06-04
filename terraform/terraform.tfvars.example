@@ -7,3 +7,4 @@ prefix = "dev"
 vnet_address_space           = "10.0.0.0/16"
 backend_subnet_address_space = "10.0.1.0/24"
 app_subnet_address_space     = "10.0.2.0/24"
+#network-security-group
