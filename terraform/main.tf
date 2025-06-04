@@ -29,3 +29,12 @@ module "vnet" {
   backend_subnet_address_space = var.backend_subnet_address_space
   app_subnet_address_space    = var.app_subnet_address_space
 }
+module "nsg" {
+  source = "./modules/nsg"
+
+  resource_group_name = azurerm_resource_group.rg.name
+  location            = azurerm_resource_group.rg.location
+
+  prefix = var.prefix
+
+}
