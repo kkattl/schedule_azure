@@ -1,12 +1,10 @@
 variable "resource_group_name" {
   type        = string
-  default     = "class-schedule-rg"
 }
 
 variable "location" {
   type        = string
   description = "Region Azure"
-  default     = "East US"
 }
 
 variable "prefix" {
@@ -14,25 +12,11 @@ variable "prefix" {
   description = "Resourse's prefix"
 }
 
-#Vnet
-variable "vnet_address_space" {
-  type        = string
-  description = "CIDR for Vnet"
-}
-
-variable "backend_subnet_address_space" {
-  type        = string
-  description = "CIDR for backend subnet"
-}
-
-variable "app_subnet_address_space" {
-  type        = string
-  description = "CIDR for app subnet"
-}
 variable "vm_size" {
   type = string
   description = "Type of linux vm"
 }
+
 variable "admin_username" {
   type = string
   description = "Username of admin for vm"
