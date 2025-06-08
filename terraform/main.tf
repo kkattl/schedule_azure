@@ -23,20 +23,16 @@ module "vnet" {
 
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
-
   prefix = var.prefix
-
   vnet_address_space           = var.vnet_address_space
   backend_subnet_address_space = var.backend_subnet_address_space
   app_subnet_address_space     = var.app_subnet_address_space
 }
 module "nsg" {
   source = "./modules/nsg"
-
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
   prefix              = var.prefix
-
 }
 module "frontend" {
   source = "./modules/frontend"
@@ -50,7 +46,6 @@ module "frontend" {
   app_vm_pub_key_path                 = var.app_vm_pub_key_path
   app_vm_size                         = var.app_vm_size
   admin_username                      = var.admin_username
-  vnet_address_space                  = var.vnet_address_space
-  backend_subnet_address_space        = var.backend_subnet_address_space
-  app_subnet_address_space            = var.app_subnet_address_space
+  app_subnet_id                       = module.vnet.app_subnet_id
+  app_nsg_id                          = module.nsg.app_nsg_id
 }
