@@ -46,18 +46,12 @@ variable "app_vm_pub_key_path" {
   type = string
   description = "Path to ssh public key for app vm"
 }
-
-variable "vnet_address_space" {
+variable "app_subnet_id" {
   type        = string
-  description = "CIDR for Vnet"
+  description = "ID for app subnet"
 }
 
-variable "backend_subnet_address_space" {
+variable "app_nsg_id" {
   type        = string
-  description = "CIDR for backend subnet"
-}
-
-variable "app_subnet_address_space" {
-  type        = string
-  description = "CIDR for app subnet"
+  description = "app network security group"
 }
