@@ -46,16 +46,6 @@ variable "admin_username" {
   description = "Username of admin for vm"
 }
 
-variable "app_pub_ip_allocation_method" {
-  type = string
-  description = "Allocation method for app public ip"
-}
-
-variable "app_pub_ip_sku" {
-  type = string
-  description = "Sku method for app public ip"
-}
-
 variable "app_vm_os_disk_caching" {
   type = string
   description = "Caching method for vm disk"

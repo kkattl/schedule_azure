@@ -12,7 +12,12 @@ variable "prefix" {
   description = "Resource prefix"
 }
 
-variable "app_vm_size" {
+variable "vm_name" {
+  type        = string
+  description = "Suffix for VM resources"
+}
+
+variable "vm_size" {
   type        = string
   description = "Type of linux vm"
 }
@@ -22,27 +27,27 @@ variable "admin_username" {
   description = "Username of admin for vm"
 }
 
-variable "app_vm_os_disk_caching" {
+variable "os_disk_caching" {
   type        = string
   description = "Caching method for vm disk"
 }
 
-variable "app_vm_os_disk_storage_account_type" {
+variable "os_disk_storage_account_type" {
   type        = string
   description = "Storage account type for vm disk"
 }
 
-variable "app_vm_pub_key_path" {
+variable "pub_key_path" {
   type        = string
   description = "Path to ssh public key for vm"
 }
 
-variable "backend_subnet_id" {
+variable "subnet_id" {
   type        = string
-  description = "ID of backend subnet"
+  description = "Subnet ID"
 }
 
-variable "backend_nsg_id" {
+variable "nsg_id" {
   type        = string
-  description = "Network security group id for backend subnet"
+  description = "Network security group id"
 }
