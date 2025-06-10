@@ -26,3 +26,8 @@ variable "app_subnet_address_space" {
   type        = string
   description = "CIDR for app subnet"
 }
+
+variable "bastion_subnet_address_space" {
+  type        = string
+  description = "CIDR for bastion subnet"
+}

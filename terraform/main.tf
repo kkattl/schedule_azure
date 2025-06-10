@@ -26,7 +26,9 @@ module "vnet" {
   vnet_address_space           = var.vnet_address_space
   backend_subnet_address_space = var.backend_subnet_address_space
   app_subnet_address_space     = var.app_subnet_address_space
+  bastion_subnet_address_space = var.bastion_subnet_address_space
 }
+
 module "nsg" {
   source = "./modules/nsg"
   resource_group_name = azurerm_resource_group.rg.name
@@ -34,6 +36,13 @@ module "nsg" {
   prefix              = var.prefix
 }
 
+module "bastion" {
+  source              = "./modules/bastion"
+  resource_group_name = azurerm_resource_group.rg.name
+  location            = azurerm_resource_group.rg.location
+  prefix              = var.prefix
+  subnet_id           = module.vnet.bastion_subnet_id
+}
 
 module "backend_vm" {
   source                       = "./modules/vm"

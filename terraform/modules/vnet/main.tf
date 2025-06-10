@@ -19,6 +19,13 @@ resource "azurerm_subnet" "app_subnet" {
   address_prefixes     = [var.app_subnet_address_space]
 }
 
+resource "azurerm_subnet" "bastion_subnet" {
+  name                 = "AzureBastionSubnet"
+  resource_group_name  = var.resource_group_name
+  virtual_network_name = azurerm_virtual_network.vnet.name
+  address_prefixes     = [var.bastion_subnet_address_space]
+}
+
 resource "azurerm_public_ip" "nat_public_ip" {
   name                = "${var.prefix}-nat-ip"
   location            = var.location
