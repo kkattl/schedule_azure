@@ -7,16 +7,7 @@ resource "azurerm_network_interface" "app_nic" {
     name                          = "internal"
     subnet_id                     = var.app_subnet_id
     private_ip_address_allocation = "Dynamic"
-    public_ip_address_id          = azurerm_public_ip.app_public_ip.id
   }
-}
-
-resource "azurerm_public_ip" "app_public_ip" {
-  name                = "${var.prefix}-public-ip"
-  location            = var.location
-  resource_group_name = var.resource_group_name
-  allocation_method   = var.app_pub_ip_allocation_method
-  sku                 = var.app_pub_ip_sku
 }
 
 resource "azurerm_subnet_network_security_group_association" "app_subnet_nsg_association" {
