@@ -49,22 +49,74 @@ module "nsg" {
 #   app_subnet_id                       = module.vnet.app_subnet_id
 #   app_nsg_id                          = module.nsg.app_nsg_id
 # }
-module "postgres" {
-  source                 = "./modules/postgres"
-  server_name            = "kaashntrpostgres"
-  resource_group_name    = azurerm_resource_group.rg.name
-  location               = azurerm_resource_group.rg.location
-  server_version         = "14"
-  sku_name               = "B_Standard_B1ms"
-  storage_mb             = 32768
-  administrator_login    = "login"
-  administrator_password = "somepass"
-  public_network_access_enabled = true
-  backup_retention_days = 7
-  geo_redundant_backup_enabled = false
-  avialibility_zone      = "1"  
+# module "postgres" {
+#   source                 = "./modules/postgres"
+#   server_name            = "kaashntrpostgres"
+#   resource_group_name    = azurerm_resource_group.rg.name
+#   location               = azurerm_resource_group.rg.location
+#   server_version         = "14"
+#   sku_name               = "B_Standard_B1ms"
+#   storage_mb             = 32768
+#   administrator_login    = "login"
+#   administrator_password = "somepass"
+#   public_network_access_enabled = true
+#   backup_retention_days = 7
+#   geo_redundant_backup_enabled = false
+#   avialibility_zone      = "1"  
+# }
+# module "redis" {
+#   source = "./modules/redis"
+#   resource_group_name = azurerm_resource_group.rg.name
+#   location            = azurerm_resource_group.rg.location
+
+#   existing_vnet_id           = module.vnet.vnet_id
+#   private_endpoint_subnet_id = module.vnet.app_subnet_id
+
+#   redis_cache_name = "my-secure-app-redis" # Your unique Redis Cache name
+
+#   # Optional: Override defaults for specific tiers/features
+#   # redis_sku_name = "Standard" # If you need more performance
+#   # redis_capacity = 1          # C1 size
+
+#   # For Premium SKU:
+#   # redis_sku_name        = "Premium"
+#   # redis_capacity        = 1
+#   # redis_family          = "P"
+#   # replicas_per_master   = 1
+#   # shard_count           = 1
+#   # zones                 = ["1"]
+#   # private_static_ip_address = "10.0.1.5" # Optional static IP for Premium
+
+#   tags = {
+#     Environment = "Dev"
+#     Project     = "SecureApp"
+#   }
+# }
+module "private_postgres" {
+  source = "./modules/postgres" # Path to your module directory
+
+  resource_group_name = azurerm_resource_group.rg.name
+  location            = azurerm_resource_group.rg.location
+
+  existing_vnet_id    = module.vnet.vnet_id
+  delegated_subnet_id = module.vnet.app_subnet_id # Link to your delegated subnet
+
+  server_name         = "my-secure-postgres-db" # Your unique server name
+  administrator_login = "pgadmin"
+  administrator_password = "MyStrongPassword123!" # ***CHANGE THIS TO A SECURE PASSWORD***
+
+  # Optional: Override defaults
+  # server_version            = "16"
+  sku_name                  = "B_Standard_B1ms"
+  storage_mb                = 32768 
+
+  tags = {
+    Environment = "Dev"
+    Project     = "SecurePostgresApp"
+  }
 }
-module "redis" {
-  source = "./modules/redis"
-  
+
+# Example of accessing outputs
+output "postgres_server_hostname" {
+  value = module.private_postgres.server_hostname
 }
