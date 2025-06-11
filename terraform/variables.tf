@@ -25,14 +25,9 @@ variable "vnet_address_space" {
   description = "CIDR for Vnet"
 }
 
-variable "backend_subnet_address_space" {
+variable "private_subnet_address_space" {
   type        = string
-  description = "CIDR for backend subnet"
-}
-
-variable "app_subnet_address_space" {
-  type        = string
-  description = "CIDR for app subnet"
+  description = "CIDR for private subnet"
 }
 
 variable "bastion_subnet_address_space" {
@@ -41,7 +36,7 @@ variable "bastion_subnet_address_space" {
 }
 
 #app_vm
-variable "app_vm_size" {
+variable "vm_size" {
   type = string
   description = "Type of linux vm"
 }
@@ -51,17 +46,17 @@ variable "admin_username" {
   description = "Username of admin for vm"
 }
 
-variable "app_vm_os_disk_caching" {
+variable "vm_os_disk_caching" {
   type = string
   description = "Caching method for vm disk"
 }
 
-variable "app_vm_os_disk_storage_account_type" {
+variable "vm_os_disk_storage_account_type" {
   type = string
   description = "Storage account type for vm disk"
 }
 
-variable "app_vm_pub_key_path" {
+variable "vm_pub_key_path" {
   type = string
   description = "Path to ssh public key for app vm"
 }
