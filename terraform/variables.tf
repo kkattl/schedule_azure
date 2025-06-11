@@ -35,6 +35,11 @@ variable "app_subnet_address_space" {
   description = "CIDR for app subnet"
 }
 
+variable "bastion_subnet_address_space" {
+  type        = string
+  description = "CIDR for bastion subnet"
+}
+
 #app_vm
 variable "app_vm_size" {
   type = string
@@ -44,16 +49,6 @@ variable "app_vm_size" {
 variable "admin_username" {
   type = string
   description = "Username of admin for vm"
-}
-
-variable "app_pub_ip_allocation_method" {
-  type = string
-  description = "Allocation method for app public ip"
-}
-
-variable "app_pub_ip_sku" {
-  type = string
-  description = "Sku method for app public ip"
 }
 
 variable "app_vm_os_disk_caching" {
