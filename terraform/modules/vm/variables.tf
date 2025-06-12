@@ -51,3 +51,9 @@ variable "nsg_id" {
   type        = string
   description = "Network security group id"
 }
+
+variable "public_ip_id" {
+  type        = string
+  description = "Public IP id for the VM"
+  default     = null
+}

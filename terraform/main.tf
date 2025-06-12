@@ -25,6 +25,7 @@ module "vnet" {
   prefix = var.prefix
   vnet_address_space           = var.vnet_address_space
   private_subnet_address_space = var.private_subnet_address_space
+  public_subnet_address_space  = var.public_subnet_address_space
   bastion_subnet_address_space = var.bastion_subnet_address_space
 }
 
@@ -71,4 +72,28 @@ module "app_vm" {
   pub_key_path                 = var.vm_pub_key_path
   subnet_id                    = module.vnet.private_subnet_id
   nsg_id                       = module.nsg.app_nsg_id
+}
+
+resource "azurerm_public_ip" "proxy_ip" {
+  name                = "${var.prefix}-proxy-ip"
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+  allocation_method   = "Static"
+  sku                 = "Standard"
+}
+
+module "proxy_vm" {
+  source                       = "./modules/vm"
+  resource_group_name          = azurerm_resource_group.rg.name
+  location                     = azurerm_resource_group.rg.location
+  prefix                       = var.prefix
+  vm_name                      = "proxy"
+  vm_size                      = var.vm_size
+  admin_username               = var.admin_username
+  os_disk_caching              = var.vm_os_disk_caching
+  os_disk_storage_account_type = var.vm_os_disk_storage_account_type
+  pub_key_path                 = var.vm_pub_key_path
+  subnet_id                    = module.vnet.private_subnet_id
+  nsg_id                       = module.nsg.proxy_nsg_id
+  public_ip_id                 = azurerm_public_ip.proxy_ip.id
 }
