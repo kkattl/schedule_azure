@@ -22,16 +22,6 @@ variable "private_subnet_address_space" {
   description = "CIDR for backend subnet"
 }
 
-# variable "backend_subnet_address_space" {
-#   type        = string
-#   description = "CIDR for backend subnet"
-# }
-
-# variable "app_subnet_address_space" {
-#   type        = string
-#   description = "CIDR for app subnet"
-# }
-
 variable "bastion_subnet_address_space" {
   type        = string
   description = "CIDR for bastion subnet"
