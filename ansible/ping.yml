@@ -1,0 +1,50 @@
+- name: Open bastion tunnel and verify backend connection
+  hosts: localhost
+  gather_facts: false
+  vars:
+    bastion_name: "{{ lookup('env', 'BASTION_NAME') | default('schedule-bastion') }}"
+    resource_group: "{{ lookup('env', 'RESOURCE_GROUP_NAME') | default('class-schedule-rg') }}"
+    vm_name: "{{ lookup('env', 'VM_NAME') | default('schedule-backend') }}"
+    admin_username: "{{ lookup('env', 'ADMIN_USERNAME') | default('azureuser') }}"
+    ssh_key_path: "{{ lookup('env', 'SSH_KEY_PATH') | default('~/.ssh/vagrant_id_ed25519') }}"
+    local_port: "{{ lookup('env', 'LOCAL_PORT') | default('50022') | int }}"
+  tasks:
+    - name: Check Azure login
+      command: az account show
+      register: account_info
+      failed_when: false
+      changed_when: false
+
+    - name: Login using service principal if required
+      when: account_info.rc != 0
+      command: >
+        az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
+
+    - name: Start Bastion tunnel
+      shell: |
+        nohup az network bastion tunnel \
+          --name {{ bastion_name }} \
+          --resource-group {{ resource_group }} \
+          --target-resource-id $(az vm show -g {{ resource_group }} -n {{ vm_name }} --query id -o tsv) \
+          --resource-port 22 \
+          --port {{ local_port }} &>/tmp/bastion_tunnel.log &
+      async: 0
+      poll: 0
+
+    - name: Wait for tunnel port to become available
+      wait_for:
+        host: 127.0.0.1
+        port: "{{ local_port }}"
+        timeout: 30
+
+- name: Verify backend connectivity
+  hosts: backend
+  gather_facts: false
+  tasks:
+    - name: Test connectivity
+      ansible.builtin.ping:
+    - name: Display hostname
+      ansible.builtin.command: hostname
+      register: host_out
+    - debug:
+        var: host_out.stdout
