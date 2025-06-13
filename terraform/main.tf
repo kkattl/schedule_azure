@@ -93,7 +93,7 @@ module "proxy_vm" {
   os_disk_caching              = var.vm_os_disk_caching
   os_disk_storage_account_type = var.vm_os_disk_storage_account_type
   pub_key_path                 = var.vm_pub_key_path
-  subnet_id                    = module.vnet.private_subnet_id
+  subnet_id                    = module.vnet.public_subnet_id
   nsg_id                       = module.nsg.proxy_nsg_id
   public_ip_id                 = azurerm_public_ip.proxy_ip.id
 }
