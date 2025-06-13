@@ -29,7 +29,10 @@ variable "private_subnet_address_space" {
   type        = string
   description = "CIDR for private subnet"
 }
-
+variable "public_subnet_address_space" {
+  type        = string
+  description = "CIDR for private subnet"
+}
 variable "bastion_subnet_address_space" {
   type        = string
   description = "CIDR for bastion subnet"
