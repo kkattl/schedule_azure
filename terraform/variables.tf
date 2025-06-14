@@ -40,6 +40,11 @@ variable "bastion_subnet_address_space" {
   description = "CIDR for bastion subnet"
 }
 
+variable "db_subnet_address_space" {
+  type        = string
+  description = "CIDR for bastion subnet"
+}
+
 #app_vm
 variable "app_vm_size" {
   type = string

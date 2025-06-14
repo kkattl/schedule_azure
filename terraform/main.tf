@@ -6,6 +6,12 @@ terraform {
       version = ">= 3.0.0"
     }
   }
+  # backend "azurerm" {
+  #   resource_group_name  = "class-schedule-rg"  # Name of the resource group where your storage account resides
+  #   storage_account_name = "storageaccount"
+  #   container_name       = "tfstate"                # Name of the blob container for state files
+  #   key                  = "terraform.tfstate"      # The path/name of the state file within the container
+  # }
 }
 provider "azurerm" {
   features {}
@@ -17,20 +23,29 @@ resource "azurerm_resource_group" "rg" {
   location = var.location
 }
 
+# resource "azurerm_storage_account" "storage_account" {
+#   name                     = "storageaccount"
+#   resource_group_name      = azurerm_resource_group.rg.name
+#   location                 = azurerm_resource_group.rg.location
+#   account_tier             = "Standard"
+#   account_replication_type = "GRS"
+# }
+
 module "vnet" {
   source = "./modules/vnet"
 
-  resource_group_name = azurerm_resource_group.rg.name
-  location            = azurerm_resource_group.rg.location
-  prefix = var.prefix
+  resource_group_name          = azurerm_resource_group.rg.name
+  location                     = azurerm_resource_group.rg.location
+  prefix                       = var.prefix
   vnet_address_space           = var.vnet_address_space
   backend_subnet_address_space = var.backend_subnet_address_space
   app_subnet_address_space     = var.app_subnet_address_space
   bastion_subnet_address_space = var.bastion_subnet_address_space
+  db_subnet_address_space      = var.db_subnet_address_space
 }
 
 module "nsg" {
-  source = "./modules/nsg"
+  source              = "./modules/nsg"
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
   prefix              = var.prefix
@@ -73,3 +88,14 @@ module "app_vm" {
   subnet_id                    = module.vnet.app_subnet_id
   nsg_id                       = module.nsg.app_nsg_id
 }
+
+# module "postgres" {
+#   source = "./modules/postgres"
+#   server_name = "postgres"
+#   location = azurerm_resource_group.rg.location
+#   resource_group_name = azurerm_resource_group.rg.name
+#   existing_vnet_id = module.vnet.vnet_id
+#   delegated_subnet_id = module.vnet.db_subnet_id
+#   administrator_login = "login"
+#   administrator_password = "BestPassword123!"
+# }
