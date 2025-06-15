@@ -67,6 +67,6 @@ resource "azurerm_nat_gateway_public_ip_association" "nat_ip_assoc" {
 }
 
 resource "azurerm_subnet_nat_gateway_association" "app_subnet_nat_assoc" {
-  subnet_id     = azurerm_subnet.app_subnet.id
+  subnet_id     = azurerm_subnet.public_subnet.id
   nat_gateway_id = azurerm_nat_gateway.frontend_nat.id
 }
