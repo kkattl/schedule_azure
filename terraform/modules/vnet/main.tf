@@ -40,6 +40,13 @@ resource "azurerm_subnet" "db_subnet" {
   }
 }
 
+resource "azurerm_subnet" "redis_subnet" {
+  name                 = "AzureRedisSubnet"
+  resource_group_name  = var.resource_group_name
+  virtual_network_name = azurerm_virtual_network.vnet.name
+  address_prefixes     = [var.redis_subnet_address_space]
+}
+
 resource "azurerm_public_ip" "nat_public_ip" {
   name                = "${var.prefix}-nat-ip"
   location            = var.location

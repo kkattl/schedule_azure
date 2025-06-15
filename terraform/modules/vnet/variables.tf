@@ -36,3 +36,8 @@ variable "db_subnet_address_space" {
   type        = string
   description = "CIDR for db subnet"
 }
+
+variable "redis_subnet_address_space" {
+  type        = string
+  description = "CIDR for redis subnet"
+}

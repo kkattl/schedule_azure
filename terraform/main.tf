@@ -42,22 +42,39 @@ module "vnet" {
   app_subnet_address_space     = var.app_subnet_address_space
   bastion_subnet_address_space = var.bastion_subnet_address_space
   db_subnet_address_space      = var.db_subnet_address_space
+  redis_subnet_address_space   = var.redis_subnet_address_space
 }
 
-module "nsg" {
-  source              = "./modules/nsg"
-  resource_group_name = azurerm_resource_group.rg.name
-  location            = azurerm_resource_group.rg.location
-  prefix              = var.prefix
+module "app_nsg" {
+  source                     = "./modules/nsg"
+  resource_group_name        = azurerm_resource_group.rg.name
+  use_for_each               = var.use_for_each
+  custom_rules               = var.app_custom_rules
+  destination_address_prefix = var.destination_address_prefix
+  security_group_name        = var.app_nsg_name
+  source_address_prefix      = var.source_address_prefix
+  tags                       = var.tags
+  depends_on                 = [azurerm_resource_group.rg]
+}
+module "backend_nsg" {
+  source                     = "./modules/nsg"
+  resource_group_name        = azurerm_resource_group.rg.name
+  use_for_each               = var.use_for_each
+  custom_rules               = var.backend_custom_rules
+  destination_address_prefix = var.destination_address_prefix
+  security_group_name        = var.backend_nsg_name
+  source_address_prefix      = var.source_address_prefix
+  tags                       = var.tags
+  depends_on                 = [azurerm_resource_group.rg]
 }
 
-module "bastion" {
-  source              = "./modules/bastion"
-  resource_group_name = azurerm_resource_group.rg.name
-  location            = azurerm_resource_group.rg.location
-  prefix              = var.prefix
-  subnet_id           = module.vnet.bastion_subnet_id
-}
+# module "bastion" {
+#   source              = "./modules/bastion"
+#   resource_group_name = azurerm_resource_group.rg.name
+#   location            = azurerm_resource_group.rg.location
+#   prefix              = var.prefix
+#   subnet_id           = module.vnet.bastion_subnet_id
+# }
 
 module "backend_vm" {
   source                       = "./modules/vm"
@@ -71,7 +88,7 @@ module "backend_vm" {
   os_disk_storage_account_type = var.app_vm_os_disk_storage_account_type
   pub_key_path                 = var.app_vm_pub_key_path
   subnet_id                    = module.vnet.backend_subnet_id
-  nsg_id                       = module.nsg.backend_nsg_id
+  nsg_id                       = module.backend_nsg.network_security_group_id
 }
 
 module "app_vm" {
@@ -86,16 +103,25 @@ module "app_vm" {
   os_disk_storage_account_type = var.app_vm_os_disk_storage_account_type
   pub_key_path                 = var.app_vm_pub_key_path
   subnet_id                    = module.vnet.app_subnet_id
-  nsg_id                       = module.nsg.app_nsg_id
+  nsg_id                       = module.app_nsg.network_security_group_id
 }
 
 # module "postgres" {
 #   source = "./modules/postgres"
-#   server_name = "postgres"
+#   server_name = "kaashntr-postgres-db"
 #   location = azurerm_resource_group.rg.location
 #   resource_group_name = azurerm_resource_group.rg.name
 #   existing_vnet_id = module.vnet.vnet_id
 #   delegated_subnet_id = module.vnet.db_subnet_id
 #   administrator_login = "login"
 #   administrator_password = "BestPassword123!"
+# }
+
+# module "redis" {
+#   source = "./modules/redis"
+#   location = azurerm_resource_group.rg.location
+#   resource_group_name = azurerm_resource_group.rg.name
+#   redis_cache_name = "kaashntr-redis-db"
+#   existing_vnet_id = module.vnet.vnet_id
+#   private_endpoint_subnet_id = module.vnet.redis_subnet_id
 # }
