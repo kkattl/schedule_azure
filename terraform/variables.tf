@@ -20,19 +20,21 @@ variable "prefix" {
 }
 
 #Vnet
-variable "vnet_address_space" {module.backend_nsg.network_security_group_id
+variable "vnet_address_space" {
   type        = string
   description = "CIDR for Vnet"
 }
 
 variable "private_subnet_address_space" {
   type        = string
-  description = "CIDR for private subnet"
+  description = "CIDR for backend subnet"
 }
+
 variable "public_subnet_address_space" {
   type        = string
-  description = "CIDR for private subnet"
+  description = "CIDR for app subnet"
 }
+
 variable "bastion_subnet_address_space" {
   type        = string
   description = "CIDR for bastion subnet"
@@ -75,6 +77,7 @@ variable "vm_pub_key_path" {
 }
 
 #nsg
+
 variable "app_custom_rules" {
   description = "Custom set of security rules using this format"
   type        = list(any)
@@ -159,6 +162,7 @@ variable "source_address_prefix" {
 
   # Example: ["10.0.3.0/24"]
 }
+
 variable "tags" {
   description = "The tags to associate with your network security group."
   type        = map(string)
@@ -171,4 +175,3 @@ variable "use_for_each" {
   default     = false
   nullable    = false
 }
-
