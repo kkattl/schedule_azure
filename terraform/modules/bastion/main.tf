@@ -10,9 +10,9 @@ resource "azurerm_bastion_host" "bastion" {
   name                = "${var.prefix}-bastion"
   location            = var.location
   resource_group_name = var.resource_group_name
-  sku                 = "Standard" 
-  ip_connect_enabled = true
-
+  sku                 = "Standard"
+  scale_units         = 2
+  tunneling_enabled   = true
   ip_configuration {
     name                 = "configuration"
     subnet_id            = var.subnet_id

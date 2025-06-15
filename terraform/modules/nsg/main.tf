@@ -105,10 +105,8 @@ resource "azurerm_network_security_rule" "custom_rules" {
     }
   }
 }
-
 resource "azurerm_network_security_rule" "custom_rules_for" {
   for_each = { for value in var.custom_rules : value.name => value if var.use_for_each }
-
   access                                     = lookup(each.value, "access", "Allow")
   direction                                  = lookup(each.value, "direction", "Inbound")
   name                                       = lookup(each.value, "name", "default_rule_name")

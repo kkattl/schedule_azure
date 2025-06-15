@@ -5,18 +5,18 @@ resource "azurerm_virtual_network" "vnet" {
   resource_group_name = var.resource_group_name
 }
 
-resource "azurerm_subnet" "backend_subnet" {
-  name                 = "${var.prefix}-backend-subnet"
+resource "azurerm_subnet" "private_subnet" {
+  name                 = "${var.prefix}-private-subnet"
   resource_group_name  = var.resource_group_name
   virtual_network_name = azurerm_virtual_network.vnet.name
-  address_prefixes     = [var.backend_subnet_address_space]
+  address_prefixes     = [var.private_subnet_address_space]
 }
 
-resource "azurerm_subnet" "app_subnet" {
-  name                 = "${var.prefix}-app-subnet"
+resource "azurerm_subnet" "public_subnet" {
+  name                 = "${var.prefix}-public-subnet"
   resource_group_name  = var.resource_group_name
   virtual_network_name = azurerm_virtual_network.vnet.name
-  address_prefixes     = [var.app_subnet_address_space]
+  address_prefixes     = [var.public_subnet_address_space]
 }
 
 resource "azurerm_subnet" "bastion_subnet" {
@@ -39,7 +39,6 @@ resource "azurerm_subnet" "db_subnet" {
     }
   }
 }
-
 resource "azurerm_subnet" "redis_subnet" {
   name                 = "AzureRedisSubnet"
   resource_group_name  = var.resource_group_name

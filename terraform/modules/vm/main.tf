@@ -7,11 +7,12 @@ resource "azurerm_network_interface" "vm_nic" {
     name                          = "internal"
     subnet_id                     = var.subnet_id
     private_ip_address_allocation = "Dynamic"
+    public_ip_address_id          = var.public_ip_id
   }
 }
 
-resource "azurerm_subnet_network_security_group_association" "vm_nsg_association" {
-  subnet_id                 = var.subnet_id
+resource "azurerm_network_interface_security_group_association" "vm_nsg_association" {
+  network_interface_id      = azurerm_network_interface.vm_nic.id
   network_security_group_id = var.nsg_id
 }
 

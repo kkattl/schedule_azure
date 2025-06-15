@@ -17,14 +17,13 @@ variable "vnet_address_space" {
   description = "CIDR for Vnet"
 }
 
-variable "backend_subnet_address_space" {
+variable "private_subnet_address_space" {
   type        = string
-  description = "CIDR for backend subnet"
+  description = "CIDR for private subnet"
 }
-
-variable "app_subnet_address_space" {
+variable "public_subnet_address_space" {
   type        = string
-  description = "CIDR for app subnet"
+  description = "CIDR for public subnet"
 }
 
 variable "bastion_subnet_address_space" {

@@ -20,21 +20,19 @@ variable "prefix" {
 }
 
 #Vnet
-variable "vnet_address_space" {
+variable "vnet_address_space" {module.backend_nsg.network_security_group_id
   type        = string
   description = "CIDR for Vnet"
 }
 
-variable "backend_subnet_address_space" {
+variable "private_subnet_address_space" {
   type        = string
-  description = "CIDR for backend subnet"
+  description = "CIDR for private subnet"
 }
-
-variable "app_subnet_address_space" {
+variable "public_subnet_address_space" {
   type        = string
-  description = "CIDR for app subnet"
+  description = "CIDR for private subnet"
 }
-
 variable "bastion_subnet_address_space" {
   type        = string
   description = "CIDR for bastion subnet"
@@ -51,7 +49,7 @@ variable "redis_subnet_address_space" {
 }
 
 #app_vm
-variable "app_vm_size" {
+variable "vm_size" {
   type = string
   description = "Type of linux vm"
 }
@@ -61,23 +59,22 @@ variable "admin_username" {
   description = "Username of admin for vm"
 }
 
-variable "app_vm_os_disk_caching" {
+variable "vm_os_disk_caching" {
   type = string
   description = "Caching method for vm disk"
 }
 
-variable "app_vm_os_disk_storage_account_type" {
+variable "vm_os_disk_storage_account_type" {
   type = string
   description = "Storage account type for vm disk"
 }
 
-variable "app_vm_pub_key_path" {
+variable "vm_pub_key_path" {
   type = string
   description = "Path to ssh public key for app vm"
 }
 
 #nsg
-
 variable "app_custom_rules" {
   description = "Custom set of security rules using this format"
   type        = list(any)
@@ -162,7 +159,6 @@ variable "source_address_prefix" {
 
   # Example: ["10.0.3.0/24"]
 }
-
 variable "tags" {
   description = "The tags to associate with your network security group."
   type        = map(string)
@@ -175,3 +171,4 @@ variable "use_for_each" {
   default     = false
   nullable    = false
 }
+
