@@ -68,6 +68,18 @@ module "backend_nsg" {
   depends_on                 = [azurerm_resource_group.rg]
 }
 
+module "proxy_nsg" {
+  source                     = "./modules/nsg"
+  resource_group_name        = azurerm_resource_group.rg.name
+  use_for_each               = var.use_for_each
+  custom_rules               = var.proxy_custom_rules
+  destination_address_prefix = var.destination_address_prefix
+  security_group_name        = var.proxy_nsg_name
+  source_address_prefix      = var.source_address_prefix
+  tags                       = var.tags
+  depends_on                 = [azurerm_resource_group.rg]
+}
+
 # module "bastion" {
 #   source              = "./modules/bastion"
 #   resource_group_name = azurerm_resource_group.rg.name
@@ -127,7 +139,7 @@ module "proxy_vm" {
   os_disk_storage_account_type = var.vm_os_disk_storage_account_type
   pub_key_path                 = var.vm_pub_key_path
   subnet_id                    = module.vnet.public_subnet_id
-  nsg_id                       = module.nsg.proxy_nsg.network_security_group_id
+  nsg_id                       = module.proxy_nsg.network_security_group_id
   public_ip_id                 = azurerm_public_ip.proxy_ip.id
 }
 # module "postgres" {
