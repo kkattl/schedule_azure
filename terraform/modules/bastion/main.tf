@@ -13,7 +13,6 @@ resource "azurerm_bastion_host" "bastion" {
   sku                 = "Standard"
   scale_units         = 2
   tunneling_enabled   = true
-
   ip_configuration {
     name                 = "configuration"
     subnet_id            = var.subnet_id

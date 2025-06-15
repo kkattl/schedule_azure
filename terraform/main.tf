@@ -6,6 +6,12 @@ terraform {
       version = ">= 3.0.0"
     }
   }
+  # backend "azurerm" {
+  #   resource_group_name  = "class-schedule-rg"  # Name of the resource group where your storage account resides
+  #   storage_account_name = "storageaccount"
+  #   container_name       = "tfstate"                # Name of the blob container for state files
+  #   key                  = "terraform.tfstate"      # The path/name of the state file within the container
+  # }
 }
 provider "azurerm" {
   features {}
@@ -17,32 +23,58 @@ resource "azurerm_resource_group" "rg" {
   location = var.location
 }
 
+# resource "azurerm_storage_account" "storage_account" {
+#   name                     = "storageaccount"
+#   resource_group_name      = azurerm_resource_group.rg.name
+#   location                 = azurerm_resource_group.rg.location
+#   account_tier             = "Standard"
+#   account_replication_type = "GRS"
+# }
+
 module "vnet" {
   source = "./modules/vnet"
 
-  resource_group_name = azurerm_resource_group.rg.name
-  location            = azurerm_resource_group.rg.location
-  prefix = var.prefix
+  resource_group_name          = azurerm_resource_group.rg.name
+  location                     = azurerm_resource_group.rg.location
+  prefix                       = var.prefix
   vnet_address_space           = var.vnet_address_space
   private_subnet_address_space = var.private_subnet_address_space
   public_subnet_address_space  = var.public_subnet_address_space
   bastion_subnet_address_space = var.bastion_subnet_address_space
+  db_subnet_address_space      = var.db_subnet_address_space
+  redis_subnet_address_space   = var.redis_subnet_address_space
 }
 
-module "nsg" {
-  source = "./modules/nsg"
-  resource_group_name = azurerm_resource_group.rg.name
-  location            = azurerm_resource_group.rg.location
-  prefix              = var.prefix
+module "app_nsg" {
+  source                     = "./modules/nsg"
+  resource_group_name        = azurerm_resource_group.rg.name
+  use_for_each               = var.use_for_each
+  custom_rules               = var.app_custom_rules
+  destination_address_prefix = var.destination_address_prefix
+  security_group_name        = var.app_nsg_name
+  source_address_prefix      = var.source_address_prefix
+  tags                       = var.tags
+  depends_on                 = [azurerm_resource_group.rg]
+}
+module "backend_nsg" {
+  source                     = "./modules/nsg"
+  resource_group_name        = azurerm_resource_group.rg.name
+  use_for_each               = var.use_for_each
+  custom_rules               = var.backend_custom_rules
+  destination_address_prefix = var.destination_address_prefix
+  security_group_name        = var.backend_nsg_name
+  source_address_prefix      = var.source_address_prefix
+  tags                       = var.tags
+  depends_on                 = [azurerm_resource_group.rg]
 }
 
-module "bastion" {
-  source              = "./modules/bastion"
-  resource_group_name = azurerm_resource_group.rg.name
-  location            = azurerm_resource_group.rg.location
-  prefix              = var.prefix
-  subnet_id           = module.vnet.bastion_subnet_id
-}
+# module "bastion" {
+#   source              = "./modules/bastion"
+#   resource_group_name = azurerm_resource_group.rg.name
+#   location            = azurerm_resource_group.rg.location
+#   prefix              = var.prefix
+#   subnet_id           = module.vnet.bastion_subnet_id
+# }
 
 module "backend_vm" {
   source                       = "./modules/vm"
@@ -56,7 +88,8 @@ module "backend_vm" {
   os_disk_storage_account_type = var.vm_os_disk_storage_account_type
   pub_key_path                 = var.vm_pub_key_path
   subnet_id                    = module.vnet.private_subnet_id
-  nsg_id                       = module.nsg.backend_nsg_id
+  nsg_id                       = module.backend_nsg.network_security_group_id
+
 }
 
 module "app_vm" {
@@ -71,7 +104,7 @@ module "app_vm" {
   os_disk_storage_account_type = var.vm_os_disk_storage_account_type
   pub_key_path                 = var.vm_pub_key_path
   subnet_id                    = module.vnet.private_subnet_id
-  nsg_id                       = module.nsg.app_nsg_id
+  nsg_id                       = module.app_nsg.network_security_group_id
 }
 
 resource "azurerm_public_ip" "proxy_ip" {
@@ -94,6 +127,25 @@ module "proxy_vm" {
   os_disk_storage_account_type = var.vm_os_disk_storage_account_type
   pub_key_path                 = var.vm_pub_key_path
   subnet_id                    = module.vnet.public_subnet_id
-  nsg_id                       = module.nsg.proxy_nsg_id
+  nsg_id                       = module.nsg.proxy_nsg.network_security_group_id
   public_ip_id                 = azurerm_public_ip.proxy_ip.id
 }
+# module "postgres" {
+#   source = "./modules/postgres"
+#   server_name = "kaashntr-postgres-db"
+#   location = azurerm_resource_group.rg.location
+#   resource_group_name = azurerm_resource_group.rg.name
+#   existing_vnet_id = module.vnet.vnet_id
+#   delegated_subnet_id = module.vnet.db_subnet_id
+#   administrator_login = "login"
+#   administrator_password = "BestPassword123!"
+# }
+
+# module "redis" {
+#   source = "./modules/redis"
+#   location = azurerm_resource_group.rg.location
+#   resource_group_name = azurerm_resource_group.rg.name
+#   redis_cache_name = "kaashntr-redis-db"
+#   existing_vnet_id = module.vnet.vnet_id
+#   private_endpoint_subnet_id = module.vnet.redis_subnet_id
+# }
