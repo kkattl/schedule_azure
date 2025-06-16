@@ -108,6 +108,12 @@ variable "proxy_custom_rules" {
   default     = []
 }
 
+# variable "bastion_custom_rules" {
+#   description = "Custom set of security rules using this format"
+#   type        = list(any)
+#   default     = []
+# }
+
 variable "postgre_custom_rules" {
   description = "Custom set of security rules using this format"
   type        = list(any)
@@ -142,10 +148,10 @@ variable "proxy_nsg_name" {
   default     = "proxy_nsg"
 }
 
-variable "bastion_nsg_name" {
-  description = "Name of the network security group"
-  default     = "basstion_nsg"
-}
+# variable "bastion_nsg_name" {
+#   description = "Name of the network security group"
+#   default     = "basstion_nsg"
+# }
 
 variable "postgre_nsg_name" {
   description = "Name of the network security group"
