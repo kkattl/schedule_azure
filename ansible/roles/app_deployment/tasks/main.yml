@@ -1,0 +1,94 @@
+---
+- name: Update apt package cache (for Debian/Ubuntu based systems)
+  ansible.builtin.apt:
+    update_cache: yes
+  when: ansible_os_family == "Debian"
+
+- name: Ensure curl is installed (required for nvm install script)
+  ansible.builtin.package:
+    name: curl
+    state: present
+
+- name: Install NVM (Node Version Manager)
+  ansible.builtin.shell: |
+    curl -o- {{ nvm_install_script_url }} | bash
+  args:
+    creates: "{{ nvm_dir }}/nvm.sh"
+    executable: /bin/bash 
+  changed_when: "true"
+  become_user: "{{ ansible_user }}"
+
+- name: Install Node.js v{{ node_version }} via NVM
+  ansible.builtin.shell: |
+    source {{ nvm_dir }}/nvm.sh
+    nvm install {{ node_version }}
+    nvm use {{ node_version }}
+    nvm alias default {{ node_version }} # Set as default for future shell sessions
+  args:
+    creates: "{{ nvm_dir }}/versions/node/v{{ node_version }}" # Idempotency: only run if node version is not installed
+    executable: /bin/bash
+  changed_when: "true" # Always report as changed if it runs
+  become_user: "{{ ansible_user }}"
+
+- name: Install 'serve' globally via npm
+  ansible.builtin.shell: |
+    # Source nvm.sh to ensure npm/node are in PATH for this session
+    source {{ nvm_dir }}/nvm.sh
+    npm install -g serve
+  args:
+    creates: "{{ nvm_dir }}/versions/node/v{{ node_version }}/bin/serve" # Idempotency check: only run if 'serve' isn't there
+    executable: /bin/bash
+  changed_when: "true" # Always report as changed if it runs
+  become_user: "{{ ansible_user }}" # Ensure npm is installed by the correct user
+
+- name: Copy build archive to remote VM
+  ansible.builtin.copy:
+    src: "{{ playbook_dir }}/roles/app_deployment/files/{{ app_build_archive_name }}" # Path is relative to the playbook location
+    dest: "{{ app_build_remote_tmp_path }}"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: '0644'
+
+- name: Verify archive exists on remote VM
+  ansible.builtin.stat:
+    path: "{{ app_build_remote_tmp_path }}"
+  register: remote_archive_stat
+
+- name: Show remote archive details
+  ansible.builtin.debug:
+    msg: "Archive {{ app_build_archive_name }} exists on remote VM: {{ remote_archive_stat.stat.exists }}"
+  when: remote_archive_stat.stat.exists
+
+- name: Unarchive the build file
+  ansible.builtin.unarchive:
+    src: "{{ app_build_remote_tmp_path }}"
+    dest: "{{ app_install_dir }}" # Destination directory for the unarchived app
+    remote_src: yes # Source file is already on the remote machine
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: '0755' # Set permissions for the extracted files/directories
+    creates: "{{ app_install_dir }}/index.html" # Idempotency: only unarchive if a known file (like index.html) doesn't exist
+  become: true # Unarchive as the user who owns the app files
+
+- name: Delete temporary build archive
+  ansible.builtin.file:
+    path: "{{ app_build_remote_tmp_path }}"
+    state: absent
+
+- name: Run application with 'serve'
+  ansible.builtin.command: "{{ nvm_dir }}/versions/node/v{{ node_version }}/bin/serve -s {{ app_install_dir }}/build -l {{ app_serve_port }} &"
+  args:
+    chdir: "{{ app_install_dir }}" # Change to the app installation directory before running serve
+  environment:
+    # Ensure Node.js path is available to the 'serve' command
+    PATH: "{{ nvm_dir }}/versions/node/v{{ node_version }}/bin:{{ ansible_env.PATH }}"
+    NVM_DIR: "{{ nvm_dir }}" # Explicitly set NVM_DIR
+  # IMPORTANT: This task runs 'serve' as a direct command.
+  # For production, this is NOT recommended as it won't auto-restart on crash
+  # or start on boot. You should use a systemd service for robust management.
+  # Example for systemd service is in previous detailed responses.
+  # If you must run it in the background for testing (not prod):
+  async: 3605
+  poll: 0
+  changed_when: false # Assumes it's a long-running background process
+  register: serve_app_output

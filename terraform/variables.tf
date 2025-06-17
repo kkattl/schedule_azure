@@ -181,3 +181,17 @@ variable "use_for_each" {
   default     = false
   nullable    = false
 }
+
+variable "postgre_admin_user" {
+  type = string
+  default = "postgre"
+}
+
+variable "postgre_admin_password" {
+  type = string
+}
+
+variable "postgre_server_name" {
+  type = string
+  default = "kaashntr-postgre-db"
+}

@@ -3,6 +3,7 @@
 *.tfstate
 *.tfstate.* 
 *.tfvars 
+*.tar.gz
 override.tf 
 override.tf.json 
 *_override.tf 

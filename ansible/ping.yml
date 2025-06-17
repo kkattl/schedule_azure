@@ -1,0 +1,44 @@
+# deploy.yml
+
+- name: Open bastion tunnel (This play runs on localhost to establish the tunnel)
+  hosts: localhost
+  gather_facts: false # No facts needed for localhost operation
+  vars:
+    bastion_name: dev-bastion
+    resource_group: class-schedule-rg
+    vm_azure_name: dev-app
+    admin_username: login
+    ssh_key_path: ~/.ssh/id_ed25519
+    local_tunnel_port: 50021 # Local port for the tunnel
+
+  tasks:
+    - name: Start Azure Bastion tunnel to target VM (runs in background)
+      ansible.builtin.shell: |
+        az network bastion tunnel \
+          --name {{ bastion_name }} \
+          --resource-group {{ resource_group }} \
+          --target-resource-id $(az vm show -g {{ resource_group }} -n {{ vm_azure_name }} --query id -o tsv) \
+          --resource-port 22 \
+          --port {{ local_tunnel_port }} \
+          --timeout 3600 # Keep the tunnel open for 3600 seconds (1 hour)
+      async: 3605
+      poll: 0 # Don't wait for the tunnel command to finish (it runs indefinitely)
+
+    - name: Pause to allow Bastion tunnel to establish
+      ansible.builtin.pause:
+        seconds: 10 # Give the tunnel a few seconds to fully set up
+
+- name: Deploy and configure application on target VM via Bastion tunnel
+  hosts: appvm # This should be an alias in your inventory that points to 127.0.0.1
+  gather_facts: true
+  become: yes # Run tasks with sudo/root privileges on the VM
+
+  vars:
+    # These variables are crucial for Ansible to connect to backendvm via the local tunnel
+    ansible_host: 127.0.0.1
+    ansible_port: "50021" # Use the local tunnel port to connect
+    ansible_user: "login" # Use the admin_username defined in the first play
+    ansible_ssh_private_key_file: "~/.ssh/id_ed25519" # Use the SSH key defined in the first play
+
+  roles:
+    - app_deployment # This is where your new role is called

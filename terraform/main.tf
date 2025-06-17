@@ -183,13 +183,13 @@ module "proxy_vm" {
 }
 module "postgres" {
   source                 = "./modules/postgres"
-  server_name            = "kaashntr-postgres-db"
+  server_name            = var.postgre_server_name
   location               = azurerm_resource_group.rg.location
   resource_group_name    = azurerm_resource_group.rg.name
   existing_vnet_id       = module.vnet.vnet_id
   delegated_subnet_id    = module.vnet.postgre_subnet_id
-  administrator_login    = "login"
-  administrator_password = "BestPassword123!"
+  administrator_login    = var.postgre_admin_user
+  administrator_password = var.postgre_admin_password
 }
 
 module "redis" {
