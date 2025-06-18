@@ -1,0 +1,12 @@
+- name: Remove default site
+  file:
+    path: /etc/nginx/sites-enabled/default
+    state: absent
+  notify: reload nginx
+
+- name: Deploy reverse-proxy vhost
+  template:
+    src: reverse_proxy.conf.j2
+    dest: /etc/nginx/sites-enabled/reverse_proxy.conf
+    mode: "0644"
+  notify: reload nginx

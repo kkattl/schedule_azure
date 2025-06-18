@@ -1,0 +1,11 @@
+- name: Proxy VM → Frontend
+  hosts: proxy             
+  become: true
+
+  vars:
+    backend_host: "{{ hostvars['frontend_vm'].ansible_host }}"  
+    backend_port: 3000
+    server_name: "_"       
+
+  roles:
+    - reverse_proxy
