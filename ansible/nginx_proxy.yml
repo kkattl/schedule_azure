@@ -1,0 +1,5 @@
+- name: Install & start NGINX on proxy VM
+  hosts: proxy
+  become: true
+  roles:
+    - nginx

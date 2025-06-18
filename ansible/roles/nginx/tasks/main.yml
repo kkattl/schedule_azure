@@ -1,0 +1,8 @@
+- name: Include OS-specific install
+  include_tasks: install.yml
+
+- name: Ensure NGINX started & enabled
+  service:
+    name: nginx
+    state: started
+    enabled: yes
