@@ -7,7 +7,7 @@
 - name: Configure backend via Bastion
   hosts: backend
   become: true
-  gather_facts: false
+  gather_facts: true
   roles:
     - gradle
     - tomcat
