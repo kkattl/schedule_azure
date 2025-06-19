@@ -1,0 +1,13 @@
+- name: Open Bastion tunnel
+  hosts: localhost
+  gather_facts: false
+  roles:
+    - bastion
+
+- name: Configure backend via Bastion
+  hosts: backend
+  become: true
+  gather_facts: false
+  roles:
+    - gradle
+    - tomcat

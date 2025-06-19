@@ -1,0 +1,24 @@
+- name: Ensure unzip is present
+  apt:
+    name: unzip
+    state: present
+  when: ansible_os_family == 'Debian'
+
+- name: Download Gradle distribution
+  unarchive:
+    src: "https://services.gradle.org/distributions/gradle-{{ gradle_version }}-bin.zip"
+    dest: /opt
+    remote_src: yes
+
+- name: Symlink gradle to /opt/gradle
+  file:
+    src: "/opt/gradle-{{ gradle_version }}"
+    dest: /opt/gradle
+    state: link
+
+- name: Add Gradle to PATH
+  copy:
+    dest: /etc/profile.d/gradle.sh
+    content: |
+      export PATH=/opt/gradle/bin:$PATH
+    mode: '0755'

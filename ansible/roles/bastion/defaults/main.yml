@@ -1,0 +1,6 @@
+bastion_name: dev-bastion
+resource_group: class-schedule-rg
+vm_name: dev-backend
+admin_username: login
+ssh_key_path: ~/.ssh/vagrant_id_ed25519
+local_port: 50022
