@@ -12,6 +12,7 @@ override.tf.json
 crash.log 
 override.tfvars 
 *.backup 
+*.dump
 
 # Ignore CLI configuration files
 .terraformrc 
