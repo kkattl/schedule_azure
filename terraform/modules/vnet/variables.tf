@@ -40,3 +40,18 @@ variable "redis_subnet_address_space" {
   type        = string
   description = "CIDR for redis subnet"
 }
+
+# variable "bastion_nsg_id" {
+#   type = string
+#   description = "Bastion NSG for association"
+# }
+
+variable "postgre_nsg_id" {
+  type = string
+  description = "Postgre NSG for association"
+}
+
+variable "redis_nsg_id" {
+  type = string
+  description = "Redis NSG for association"
+}

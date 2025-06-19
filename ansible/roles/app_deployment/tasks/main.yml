@@ -1,0 +1,46 @@
+# roles/app_deployment/tasks/main.yml
+---
+- name: Create application installation directory if it doesn't exist
+  ansible.builtin.file:
+    path: "{{ app_install_dir }}"
+    state: directory
+    owner: "{{ ansible_user }}" 
+    group: "{{ ansible_user }}"
+    mode: '0755'
+    recurse: true
+  become: true # Needed to create directories in /opt
+
+- name: Copy build archive to remote VM
+  ansible.builtin.copy:
+    src: "{{ app_build_archive_name }}" # This path is relative to the role's 'files/' directory
+    dest: "{{ app_build_remote_tmp_path }}"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: '0644'
+
+- name: Verify archive exists on remote VM
+  ansible.builtin.stat:
+    path: "{{ app_build_remote_tmp_path }}"
+  register: remote_archive_stat
+
+- name: Show remote archive details
+  ansible.builtin.debug:
+    msg: "Archive {{ app_build_archive_name }} exists on remote VM: {{ remote_archive_stat.stat.exists }}"
+  when: remote_archive_stat.stat.exists
+
+- name: Unarchive the build file
+  ansible.builtin.unarchive:
+    src: "{{ app_build_remote_tmp_path }}"
+    dest: "{{ app_install_dir }}" # Destination directory for the unarchived app
+    remote_src: yes # Source file is already on the remote machine
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: '0755' # Set permissions for the extracted files/directories
+    creates: "{{ app_install_dir }}/index.html" # Idempotency: only unarchive if a known file (like index.html) doesn't exist
+  become: true # Unarchive as the user who owns the app files
+
+- name: Delete temporary build archive
+  ansible.builtin.file:
+    path: "{{ app_build_remote_tmp_path }}"
+    state: absent
+  become: true # Needed to delete files owned by root or in system tmp

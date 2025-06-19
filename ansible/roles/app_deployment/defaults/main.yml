@@ -1,0 +1,5 @@
+# roles/app_deployment/defaults/main.yml
+---
+app_build_archive_name: "build.tar.gz" # Name of your build archive file (should be in files/ directory)
+app_build_remote_tmp_path: "/tmp/{{ app_build_archive_name }}"
+app_install_dir: "/opt/" # The final destination for your unarchived app
