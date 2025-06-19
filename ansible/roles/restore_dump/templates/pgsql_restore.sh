@@ -5,7 +5,7 @@
 #export PATH=$PATH:$pathA
 
 #write your password
-PGPASSWORD="Password123!"
+PGPASSWORD=""
 export PGPASSWORD
 
 #change the path to the file from which will be made restore
