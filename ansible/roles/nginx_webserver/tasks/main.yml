@@ -1,0 +1,42 @@
+---
+# tasks file for nginx_webserver role
+
+- name: Ensure Nginx package is installed
+  ansible.builtin.package:
+    name: "{{ nginx_package_name }}"
+    state: present
+    update_cache: yes
+  # No become_user needed here, as the play itself will use 'become: yes'
+
+- name: Disable default Nginx site (if enabled and configured)
+  ansible.builtin.file:
+    path: /etc/nginx/sites-enabled/default
+    state: absent
+  notify: Reload Nginx
+  when: nginx_disable_default_site | bool and ansible_os_family == "Debian"
+  # This targets Debian/Ubuntu specific default site location.
+  # For RHEL/CentOS, default site is usually not symlinked this way or handled differently.
+
+- name: Create Nginx configuration file for the application
+  ansible.builtin.template:
+    src: nginx_app.conf.j2 # Template file for your Nginx server block
+    dest: "/etc/nginx/sites-available/class-schedule_app.conf" # Unique name for your site config
+    owner: root
+    group: root
+    mode: '0644'
+  notify: Test Nginx Configuration and Reload Nginx
+
+- name: Create symlink to enable Nginx site
+  ansible.builtin.file:
+    src: "/etc/nginx/sites-available/class-schedule_app.conf"
+    dest: "/etc/nginx/sites-enabled/class-schedule_app.conf"
+    state: link # Create a symbolic link
+    owner: root
+    group: root
+  notify: Test Nginx Configuration and Reload Nginx
+
+- name: Ensure Nginx service is started and enabled on boot
+  ansible.builtin.service:
+    name: nginx
+    state: started
+    enabled: yes

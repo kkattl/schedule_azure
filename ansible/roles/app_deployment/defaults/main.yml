@@ -1,15 +1,5 @@
+# roles/app_deployment/defaults/main.yml
 ---
-# defaults file for app_deployment role
-
-# Application build and installation paths
-app_build_archive_name: "build.tar.gz"
+app_build_archive_name: "build.tar.gz" # Name of your build archive file (should be in files/ directory)
 app_build_remote_tmp_path: "/tmp/{{ app_build_archive_name }}"
-app_install_dir: "/opt" # Where the unarchived app will reside
-
-# NVM/Node/NPM/Serve related variables
-nvm_install_script_url: "https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh"
-nvm_dir: "/home/{{ ansible_user }}/.nvm" # Assumes nvm is installed in the home directory of the Ansible connection user
-node_version: "14" # The Node.js version to install via nvm
-
-# Variables for running the app (e.g., port for 'serve')
-app_serve_port: 3000 # Default port for the 'serve' application
+app_install_dir: "/opt/" # The final destination for your unarchived app

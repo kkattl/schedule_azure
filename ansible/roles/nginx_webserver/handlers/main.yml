@@ -1,0 +1,15 @@
+---
+# handlers file for nginx_webserver role
+
+- name: Test Nginx Configuration and Reload Nginx
+  ansible.builtin.shell: | # Changed to 'shell' and using a multi-line string for clarity
+    nginx -t && systemctl reload nginx
+  # This handler runs 'nginx -t' to check syntax, and if successful, reloads Nginx.
+  # This ensures Nginx configuration is always valid before reloading.
+  listen: "Test Nginx Configuration and Reload Nginx" # This name matches the 'notify' in tasks
+
+- name: Restart Nginx
+  ansible.builtin.service:
+    name: nginx
+    state: restarted
+  listen: "Reload Nginx" # Can be used if a simple reload isn't sufficient for changes

@@ -1,0 +1,22 @@
+---
+# defaults file for nginx_webserver role
+
+# Nginx package name (adjust for different OS, e.g., 'nginx' for Debian/Ubuntu, 'nginx' for RHEL/CentOS)
+nginx_package_name: nginx
+
+# Path to the directory containing your static application build files
+# This should match where your 'app_deployment' role extracts the build.
+nginx_app_root_path: /opt/build
+
+# Domain name(s) for your Nginx server block.
+# Use server_name: "localhost" if you are only accessing by IP.
+nginx_server_names:
+  - localhost
+  # - your_domain.com
+  # - www.your_domain.com
+
+# Port Nginx will listen on for HTTP traffic
+nginx_http_port: 3000
+
+# Whether to disable the default Nginx site
+nginx_disable_default_site: true

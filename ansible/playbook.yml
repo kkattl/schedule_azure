@@ -9,7 +9,7 @@
     vm_azure_name: dev-app
     admin_username: login
     ssh_key_path: ~/.ssh/id_ed25519
-    local_tunnel_port: 50021 # Local port for the tunnel
+    local_tunnel_port: 50022 # Local port for the tunnel
 
   tasks:
     - name: Start Azure Bastion tunnel to target VM (runs in background)
@@ -31,14 +31,32 @@
 - name: Deploy and configure application on target VM via Bastion tunnel
   hosts: appvm # This should be an alias in your inventory that points to 127.0.0.1
   gather_facts: true
-  become: yes # Run tasks with sudo/root privileges on the VM
+  become: true # Run tasks with sudo/root privileges on the VM
 
   vars:
     # These variables are crucial for Ansible to connect to backendvm via the local tunnel
     ansible_host: 127.0.0.1
-    ansible_port: "50021" # Use the local tunnel port to connect
+    ansible_port: "50022" # Use the local tunnel port to connect
     ansible_user: "login" # Use the admin_username defined in the first play
     ansible_ssh_private_key_file: "~/.ssh/id_ed25519" # Use the SSH key defined in the first play
+# playbook.yml
+- name: Deploy and configure application on target VM via Bastion tunnel
+  hosts: appvm
+  gather_facts: true
+  become: true
+
+  vars:
+    # ansible_host: 127.0.0.1
+    # ansible_port: "{{ local_tunnel_port }}"
+    # ansible_user: "{{ admin_username }}"
+    # ansible_ssh_private_key_file: "{{ ssh_key_path }}"
+
+    # Override default variables for nginx_webserver role if needed
+    # For example, if your app root is different or you have a domain:
+    nginx_app_root_path: /opt/build # Ensure this matches where app_deployment extracts
+    nginx_server_names:
+      - "10.0.2.5" # Use the server's IP directly as a server_name
 
   roles:
-    - app_deployment # This is where your new role is called
+    - app_deployment   # This role extracts your build to /opt/build
+    - nginx_webserver  # This role configures Nginx to serve from /opt/build

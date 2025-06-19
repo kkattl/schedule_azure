@@ -1,0 +1,42 @@
+# Nginx configuration for {{ ansible_facts.hostname }} (Application: class-schedule)
+
+server {
+    listen {{ nginx_http_port }}; # Listen on configured HTTP port
+    listen [::]:{{ nginx_http_port }}; # Listen on IPv6 as well
+
+    # Server names: list of domain names or IP addresses this server block responds to
+    server_name {% for name in nginx_server_names %}{{ name }}{% if not loop.last %} {% endif %}{% endfor %};
+
+    # Root directory for serving static files
+    root {{ nginx_app_root_path }};
+
+    # Default files to try when a directory is requested
+    index index.html index.htm;
+
+    # Core configuration for Single Page Applications (SPAs) like React
+    # Tries to serve the requested URI directly ($uri), then as a directory ($uri/),
+    # and if neither exists, falls back to /index.html.
+    # $is_args$args preserves any query parameters for the SPA.
+    location / {
+        try_files $uri $uri/ /index.html$is_args$args;
+    }
+
+    # Optional: Enable Gzip compression for faster loading
+    gzip on;
+    gzip_vary on;
+    gzip_proxied any;
+    gzip_comp_level 6;
+    gzip_buffers 16 8k;
+    gzip_http_version 1.1;
+    gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript image/svg+xml;
+
+    # Optional: Cache control for static assets (e.g., for JS, CSS, images)
+    location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$ {
+        expires 30d;
+        add_header Cache-Control "public, no-transform";
+    }
+
+    # Optional: Logging
+    access_log /var/log/nginx/{{ ansible_facts.hostname }}_app_access.log;
+    error_log /var/log/nginx/{{ ansible_facts.hostname }}_app_error.log warn;
+}
