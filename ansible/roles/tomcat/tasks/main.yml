@@ -4,6 +4,18 @@
     state: present
   when: ansible_os_family == 'Debian'
 
+- name: Ensure tomcat group exists
+  group:
+    name: "{{ tomcat_group }}"
+    system: yes
+
+- name: Ensure tomcat user exists
+  user:
+    name: "{{ tomcat_user }}"
+    group: "{{ tomcat_group }}"
+    system: yes
+    shell: /usr/sbin/nologin
+
 - name: Download Tomcat archive
   get_url:
     url: "https://archive.apache.org/dist/tomcat/tomcat-9/v{{ tomcat_version }}/bin/apache-tomcat-{{ tomcat_version }}.tar.gz"
@@ -14,6 +26,13 @@
     src: "/tmp/tomcat-{{ tomcat_version }}.tar.gz"
     dest: "{{ tomcat_install_dir }}"
     remote_src: yes
+
+- name: Ensure Tomcat directory ownership
+  file:
+    path: "{{ tomcat_install_dir }}/apache-tomcat-{{ tomcat_version }}"
+    owner: "{{ tomcat_user }}"
+    group: "{{ tomcat_group }}"
+    recurse: yes
 
 - name: Configure systemd service for Tomcat
   copy:
