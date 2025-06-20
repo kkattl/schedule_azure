@@ -1,0 +1,17 @@
+- name: Open Bastion tunnel
+  hosts: localhost
+  gather_facts: false
+  roles:
+    - bastion
+
+- name: Install Java 11 JRE on backend
+  hosts: backend
+  become: true
+  roles:
+    - jre11
+
+- name: Install Apache Tomcat 9 on backend
+  hosts: backend
+  become: true
+  roles:
+    - tomcat

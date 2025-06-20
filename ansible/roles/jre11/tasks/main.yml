@@ -1,0 +1,17 @@
+- name: Update apt cache
+  apt:
+    update_cache: true
+
+- name: Install OpenJDK 11 JRE
+  apt:
+    name: openjdk-11-jre-headless
+    state: present
+
+- name: Configure JAVA_HOME environment variable
+  copy:
+    dest: /etc/profile.d/java.sh
+    content: |
+      #!/bin/sh
+      export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
+      export PATH="$PATH:$JAVA_HOME/bin"
+    mode: '0755'

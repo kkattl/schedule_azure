@@ -1,0 +1,6 @@
+galaxy_info:
+  author: yourname
+  description: Open Azure Bastion tunnel
+  license: MIT
+  min_ansible_version: 2.9
+dependencies: []

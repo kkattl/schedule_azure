@@ -1,0 +1,82 @@
+- name: Create tomcat group
+  group:
+    name: tomcat
+    state: present
+
+- name: Create tomcat user
+  user:
+    name: tomcat
+    group: tomcat
+    home: /opt/tomcat
+    shell: /bin/false
+    system: true
+
+- name: Download Apache Tomcat archive to remote host
+  get_url:
+    url: https://archive.apache.org/dist/tomcat/tomcat-9/v9.0.85/bin/apache-tomcat-9.0.85.tar.gz
+    dest: /tmp/apache-tomcat-9.0.85.tar.gz
+    mode: '0644'
+
+- name: Ensure installation directory exists
+  file:
+    path: /opt/tomcat
+    state: directory
+    owner: tomcat
+    group: tomcat
+    mode: '0755'
+
+- name: Extract Tomcat archive on remote host
+  unarchive:
+    src: /tmp/apache-tomcat-9.0.85.tar.gz
+    dest: /opt/tomcat
+    remote_src: yes
+    extra_opts:
+      - --strip-components=1
+    owner: tomcat
+    group: tomcat
+
+- name: Set ownership recursively on Tomcat directory
+  file:
+    path: /opt/tomcat
+    recurse: true
+    owner: tomcat
+    group: tomcat
+
+- name: Make Tomcat scripts executable
+  shell: chmod +x /opt/tomcat/bin/*.sh
+  args:
+    executable: /bin/bash
+
+- name: Create systemd service file for Tomcat
+  copy:
+    dest: /etc/systemd/system/tomcat.service
+    content: |
+      [Unit]
+      Description=Apache Tomcat Web Application Container
+      After=network.target
+
+      [Service]
+      Type=forking
+      User=tomcat
+      Group=tomcat
+
+      Environment=JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
+      Environment=CATALINA_PID=/opt/tomcat/temp/tomcat.pid
+      Environment=CATALINA_HOME=/opt/tomcat
+      Environment=CATALINA_BASE=/opt/tomcat
+      ExecStart=/opt/tomcat/bin/startup.sh
+      ExecStop=/opt/tomcat/bin/shutdown.sh
+
+      [Install]
+      WantedBy=multi-user.target
+    mode: '0644'
+
+- name: Reload systemd daemon
+  systemd:
+    daemon_reload: true
+
+- name: Enable and start Tomcat service
+  systemd:
+    name: tomcat
+    enabled: true
+    state: started
