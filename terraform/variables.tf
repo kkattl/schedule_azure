@@ -193,5 +193,10 @@ variable "postgre_admin_password" {
 
 variable "postgre_server_name" {
   type = string
-  default = "kaashntr-postgre-db"
+  default = "kkattl-postgre-db"
+}
+
+variable "redis_server_name" {
+  type = string
+  default = "kkattl-redis-db"
 }

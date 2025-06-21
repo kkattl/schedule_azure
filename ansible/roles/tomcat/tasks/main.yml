@@ -47,6 +47,14 @@
   args:
     executable: /bin/bash
 
+- name: Deploy application WAR to Tomcat
+  copy:
+    src: ROOT.war
+    dest: /opt/tomcat/webapps/ROOT.war
+    owner: tomcat
+    group: tomcat
+    mode: '0644'
+
 - name: Create systemd service file for Tomcat
   copy:
     dest: /etc/systemd/system/tomcat.service
@@ -80,3 +88,8 @@
     name: tomcat
     enabled: true
     state: started
+
+- name: Restart Tomcat to pick up new WAR
+  systemd:
+    name: tomcat
+    state: restarted
