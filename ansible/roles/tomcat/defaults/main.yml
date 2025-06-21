@@ -1,0 +1,2 @@
+postgres_endpoint: internship-postgresql-db.postgres.database.azure.com
+redis_endpoint: internship-redis-db.redis.cache.windows.net

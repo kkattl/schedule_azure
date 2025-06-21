@@ -55,6 +55,51 @@
     group: tomcat
     mode: '0644'
 
+- name: Unpack ROOT.war
+  unarchive:
+    src: /opt/tomcat/webapps/ROOT.war
+    dest: /opt/tomcat/webapps/ROOT
+    remote_src: yes
+    creates: /opt/tomcat/webapps/ROOT/WEB-INF
+    owner: tomcat
+    group: tomcat
+  notify: Restart Tomcat
+
+- name: Configure hibernate.properties
+  template:
+    src: hibernate.properties.j2
+    dest: /opt/tomcat/webapps/ROOT/WEB-INF/classes/hibernate.properties
+    owner: tomcat
+    group: tomcat
+    mode: '0644'
+  notify: Restart Tomcat
+
+- name: Configure cache.properties
+  template:
+    src: cache.properties.j2
+    dest: /opt/tomcat/webapps/ROOT/WEB-INF/classes/cache.properties
+    owner: tomcat
+    group: tomcat
+    mode: '0644'
+  notify: Restart Tomcat
+
+- name: Ensure Tomcat config directory exists
+  file:
+    path: /etc/tomcat
+    state: directory
+    owner: tomcat
+    group: tomcat
+    mode: '0755'
+
+- name: Configure database endpoint environment file
+  template:
+    src: db_env.sh.j2
+    dest: /etc/tomcat/db_env.sh
+    owner: tomcat
+    group: tomcat
+    mode: '0644'
+  notify: Restart Tomcat
+
 - name: Create systemd service file for Tomcat
   copy:
     dest: /etc/systemd/system/tomcat.service
@@ -72,6 +117,7 @@
       Environment=CATALINA_PID=/opt/tomcat/temp/tomcat.pid
       Environment=CATALINA_HOME=/opt/tomcat
       Environment=CATALINA_BASE=/opt/tomcat
+      EnvironmentFile=-/etc/tomcat/db_env.sh
       ExecStart=/opt/tomcat/bin/startup.sh
       ExecStop=/opt/tomcat/bin/shutdown.sh
 
