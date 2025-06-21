@@ -65,6 +65,14 @@
     group: tomcat
   notify: Restart Tomcat
 
+- name: Ensure classes directory exists
+  file:
+    path: /opt/tomcat/webapps/ROOT/WEB-INF/classes
+    state: directory
+    owner: tomcat
+    group: tomcat
+    mode: '0755'
+
 - name: Configure hibernate.properties
   template:
     src: hibernate.properties.j2

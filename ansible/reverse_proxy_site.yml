@@ -8,4 +8,5 @@
     server_name: "_"       
 
   roles:
+    - nginx_install
     - reverse_proxy

@@ -1,6 +1,6 @@
 - name: Open Bastion tunnel
   hosts: localhost
-  gather_facts: false
+  gather_facts: true
   roles:
     - bastion
 
