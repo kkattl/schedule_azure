@@ -1,0 +1,4 @@
+- hosts: proxy_vm
+  become: yes
+  roles:
+    - role: proxy_cert

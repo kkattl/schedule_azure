@@ -1,0 +1,26 @@
+- name: Install Nginx + Certbot
+  apt:
+    name: [nginx, certbot, python3-certbot-nginx]
+    state: present
+    update_cache: yes
+
+- name: Deploy vhost template
+  template:
+    src: habast.top.j2
+    dest: /etc/nginx/sites-available/habast.top
+  notify: reload nginx
+
+- name: Enable site
+  file:
+    src: /etc/nginx/sites-available/habast.top
+    dest: /etc/nginx/sites-enabled/habast.top
+    state: link
+  notify: reload nginx
+
+- name: Obtain / renew Let’s Encrypt cert
+  command: >
+    certbot --nginx --non-interactive --agree-tos --redirect
+            -m {{ cert_email }} -d {{ cert_domain }}
+  register: certbot_out
+  changed_when: "'Congratulations' in certbot_out.stdout"
+  notify: reload nginx

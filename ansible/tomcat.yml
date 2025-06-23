@@ -1,3 +1,9 @@
+- name: Open Bastion tunnel
+  hosts: localhost
+  gather_facts: true
+  roles:
+    - bastion
+    
 - name: Install Apache Tomcat 9 on backend
   hosts: backend
   become: true
